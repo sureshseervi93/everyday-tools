@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everyday Tools | Free & Secure Client-Side PDF Tools</title>
+    <meta name="description" content="A premium, 100% client-side PDF utility suite. Merge, split, compress, protect, rotate, sign, and convert PDF files directly in your browser. Complete privacy, files never leave your device.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- PDF & Audio & QR Processing Libraries -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0-rc.1/lib/qr-code-styling.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon"><i data-lucide="layers"></i></span>
+                    <span class="logo-text">Everyday<span class="highlight">Tools</span></span>
+                </div>
+                <button class="mobile-close" id="mobile-close"><i data-lucide="x"></i></button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-target="dashboard">
+                    <i data-lucide="layout-grid"></i>
+                    <span>All Tools</span>
+                </a>
+                
+                <div class="nav-category">Organize PDF</div>
+                <a href="#merge" class="nav-item" data-target="merge">
+                    <i data-lucide="combine"></i>
+                    <span>Merge PDF</span>
+                </a>
+                <a href="#split" class="nav-item" data-target="split">
+                    <i data-lucide="scissors"></i>
+                    <span>Split PDF</span>
+                </a>
+                <a href="#organize" class="nav-item" data-target="organize">
+                    <i data-lucide="layout-grid"></i>
+                    <span>Organize Pages</span>
+                </a>
+                <a href="#rotate" class="nav-item" data-target="rotate-tool">
+                    <i data-lucide="rotate-cw"></i>
+                    <span>Rotate PDF</span>
+                </a>
+                
+                <div class="nav-category">Convert PDF</div>
+                <a href="#pdf2img" class="nav-item" data-target="pdf2img">
+                    <i data-lucide="image"></i>
+                    <span>PDF to Images</span>
+                </a>
+                <a href="#img2pdf" class="nav-item" data-target="img2pdf">
+                    <i data-lucide="file-image"></i>
+                    <span>Images to PDF</span>
+                </a>
+                <a href="#text2pdf" class="nav-item" data-target="text2pdf">
+                    <i data-lucide="file-text"></i>
+                    <span>Text to PDF</span>
+                </a>
+                
+                <div class="nav-category">Optimize & Security</div>
+                <a href="#compress" class="nav-item" data-target="compress">
+                    <i data-lucide="compress"></i>
+                    <span>Compress PDF</span>
+                </a>
+                <a href="#protect" class="nav-item" data-target="protect">
+                    <i data-lucide="lock"></i>
+                    <span>Protect PDF</span>
+                </a>
+                <a href="#unlock" class="nav-item" data-target="unlock">
+                    <i data-lucide="unlock"></i>
+                    <span>Unlock PDF</span>
+                </a>
+                
+                <div class="nav-category">Watermark & Sign</div>
+                <a href="#watermark" class="nav-item" data-target="watermark">
+                    <i data-lucide="stamp"></i>
+                    <span>Add Watermark</span>
+                </a>
+                <a href="#pagenumber" class="nav-item" data-target="pagenumber">
+                    <i data-lucide="hash"></i>
+                    <span>Page Numbers</span>
+                </a>
+                <a href="#sign" class="nav-item" data-target="sign">
+                    <i data-lucide="pen-tool"></i>
+                    <span>Sign PDF</span>
+                </a>
+
+                <div class="nav-category">Audio & Video</div>
+                <a href="#mp3crop" class="nav-item" data-target="mp3crop">
+                    <i data-lucide="music"></i>
+                    <span>MP3 Cropper</span>
+                </a>
+                <a href="#mp4tomp3" class="nav-item" data-target="mp4tomp3">
+                    <i data-lucide="video"></i>
+                    <span>MP4 to MP3</span>
+                </a>
+
+                <div class="nav-category">General Utilities</div>
+                <a href="#calculator" class="nav-item" data-target="calculator">
+                    <i data-lucide="calculator"></i>
+                    <span>Smart Calculator</span>
+                </a>
+                <a href="#qrcode" class="nav-item" data-target="qrcode">
+                    <i data-lucide="qr-code"></i>
+                    <span>QR Code Creator</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="privacy-badge">
+                    <i data-lucide="shield-check"></i>
+                    <div>
+                        <strong>100% Private</strong>
+                        <p>No files leave your browser</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="navbar">
+                <div class="nav-left">
+                    <button class="mobile-toggle" id="mobile-toggle"><i data-lucide="menu"></i></button>
+                    <div class="search-box">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="tool-search" placeholder="Search for everyday tools...">
+                    </div>
+                </div>
+                
+                <div class="nav-center-links">
+                    <a href="#dashboard" class="nav-header-link"><i data-lucide="home"></i> Homepage</a>
+                    <div class="nav-header-dropdown">
+                        <button class="nav-header-link dropdown-trigger" id="dropdown-trigger"><i data-lucide="list"></i> Category <i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:2px;"></i></button>
+                        <div class="dropdown-menu-card" id="dropdown-menu">
+                            <a href="#dashboard" data-cat="organize">Organize Docs</a>
+                            <a href="#dashboard" data-cat="convert">Convert Files</a>
+                            <a href="#dashboard" data-cat="security">Security & Optimize</a>
+                            <a href="#dashboard" data-cat="sign">Customization & Sign</a>
+                            <a href="#dashboard" data-cat="audio-video">Audio & Video</a>
+                            <a href="#dashboard" data-cat="utility">General Utilities</a>
+                        </div>
+                    </div>
+                    <button class="nav-header-link" id="nav-about-btn"><i data-lucide="info"></i> About</button>
+                </div>
+
+                <div class="nav-right">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle Light/Dark Mode">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+                    <a href="https://github.com" target="_blank" class="github-link" title="Host on GitHub">
+                        <i data-lucide="github"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Active View Container -->
+            <div class="content-body" id="content-body">
+                
+                <!-- DASHBOARD VIEW -->
+                <section id="view-dashboard" class="view-panel active">
+                    <div class="dashboard-hero">
+                        <h1>Sleek & Secure <span class="gradient-text">PDF Tools</span></h1>
+                        <p>No subscriptions. No file uploads. Process everything client-side in seconds with complete privacy.</p>
+                    </div>
+                    
+                    <div class="tool-section-group">
+                        <h2 class="section-title"><i data-lucide="folder-git-2"></i> Organize PDF Files</h2>
+                        <div class="tools-grid" id="grid-organize">
+                            <!-- Injected by app.js or written directly -->
+                        </div>
+                    </div>
+                    
+                    <div class="tool-section-group">
+                        <h2 class="section-title"><i data-lucide="arrow-left-right"></i> Convert To/From PDF</h2>
+                        <div class="tools-grid" id="grid-convert">
+                            <!-- Injected by app.js -->
+                        </div>
+                    </div>
+                    
+                    <div class="tool-section-group">
+                        <h2 class="section-title"><i data-lucide="shield-alert"></i> Optimize & Security</h2>
+                        <div class="tools-grid" id="grid-security">
+                            <!-- Injected by app.js -->
+                        </div>
+                    </div>
+                    
+                    <div class="tool-section-group">
+                        <h2 class="section-title"><i data-lucide="pen-tool"></i> Customization & E-Sign</h2>
+                        <div class="tools-grid" id="grid-sign">
+                            <!-- Injected by app.js -->
+                        </div>
+                    </div>
+
+                    <div class="tool-section-group">
+                        <h2 class="section-title"><i data-lucide="music"></i> Audio & Video Tools</h2>
+                        <div class="tools-grid" id="grid-audio-video">
+                            <!-- Injected by app.js -->
+                        </div>
+                    </div>
+
+                    <div class="tool-section-group">
+                        <h2 class="section-title"><i data-lucide="calculator"></i> General Utilities</h2>
+                        <div class="tools-grid" id="grid-utility">
+                            <!-- Injected by app.js -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Dynamic Workspace for Tools -->
+                <section id="view-tool-workspace" class="view-panel hidden">
+                    <div class="workspace-header">
+                        <button class="btn-back" id="btn-back-to-dashboard">
+                            <i data-lucide="arrow-left"></i> Back to Dashboard
+                        </button>
+                        <h2 id="workspace-title">Tool Name</h2>
+                        <p id="workspace-description">Tool Description</p>
+                    </div>
+                    
+                    <div class="workspace-container">
+                        <!-- Dropzone (Shown when empty) -->
+                        <div class="dropzone" id="tool-dropzone">
+                            <input type="file" id="file-input" multiple style="display: none;">
+                            <div class="dropzone-content">
+                                <div class="dropzone-icon">
+                                    <i data-lucide="upload-cloud"></i>
+                                </div>
+                                <h3>Drag & Drop files here</h3>
+                                <p>or click to browse your computer</p>
+                                <span class="dropzone-hint">Supports PDF files</span>
+                            </div>
+                        </div>
+
+                        <!-- Active Editor (Shown when files uploaded) -->
+                        <div class="editor-workspace hidden" id="editor-workspace">
+                            <div class="editor-layout">
+                                <div class="editor-main" id="editor-main-area">
+                                    <!-- Render thumbnails, file lists, or edit canvas here -->
+                                </div>
+                                <div class="editor-sidebar" id="editor-sidebar-options">
+                                    <div class="options-container">
+                                        <h3>Options</h3>
+                                        <div id="dynamic-options-panel">
+                                            <!-- Dynamic settings controls injected by specific tool scripts -->
+                                        </div>
+                                        <button class="btn-primary btn-block mt-4" id="btn-process-files">
+                                            <span>Process Files</span>
+                                            <i data-lucide="zap"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Processing State (Loading) -->
+                        <div class="processing-state hidden" id="processing-state">
+                            <div class="spinner"></div>
+                            <h3 id="processing-text">Processing your files...</h3>
+                            <p>This stays entirely in your browser. Do not close this window.</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="processing-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Success / Download View -->
+                        <div class="success-state hidden" id="success-state">
+                            <div class="success-icon"><i data-lucide="check-circle-2"></i></div>
+                            <h2>Files Processed Successfully!</h2>
+                            <p id="success-message">Your file is ready for download.</p>
+                            <div class="download-actions">
+                                <button class="btn-primary btn-large" id="btn-download-result">
+                                    <i data-lucide="download"></i> Download File
+                                </button>
+                                <button class="btn-secondary" id="btn-reset-tool">
+                                    <i data-lucide="refresh-cw"></i> Process Another File
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Set global PDF.js worker -->
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    
+    <!-- About Modal Overlay -->
+    <div class="about-modal-overlay hidden" id="about-modal">
+        <div class="about-modal-card">
+            <div class="about-modal-header">
+                <h2>About <span class="gradient-text">Everyday Tools</span></h2>
+                <button class="about-modal-close" id="btn-close-about-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="about-modal-body">
+                <p><strong>Everyday Tools</strong> is a premium, free suite of document, audio, video, and math utilities running 100% client-side.</p>
+                <div class="about-features">
+                    <div class="about-feature-item">
+                        <i data-lucide="shield-check" style="color:var(--success)"></i>
+                        <div>
+                            <h4>100% Private</h4>
+                            <p>All processing runs inside your browser. No files are uploaded to any server. Your privacy is fully guaranteed.</p>
+                        </div>
+                    </div>
+                    <div class="about-feature-item">
+                        <i data-lucide="zap" style="color:var(--primary)"></i>
+                        <div>
+                            <h4>High Performance</h4>
+                            <p>Written using modern Javascript APIs and WebAssembly. Operations are executed locally, eliminating server latency.</p>
+                        </div>
+                    </div>
+                    <div class="about-feature-item">
+                        <i data-lucide="smile" style="color:var(--secondary)"></i>
+                        <div>
+                            <h4>Free & Unlimited</h4>
+                            <p>No subscriptions, no accounts, no file size caps. It's built for your daily productivity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="about-modal-footer">
+                <button class="btn-primary" id="btn-close-about-modal-ok">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
