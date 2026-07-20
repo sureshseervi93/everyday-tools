@@ -1,8 +1,6 @@
 /**
- * DocuForge App Orchestrator & Router
+ * Everyday Tools - Homepage Dashboard Controller
  */
-
-import { formatBytes } from './utils.js';
 
 // Tool Registry
 const TOOLS = [
@@ -36,53 +34,22 @@ const TOOLS = [
     { id: 'qrcode', name: 'QR Code Creator', description: 'Create customized QR codes with shapes, colors, and custom logo overlays.', icon: 'qr-code', gradient: 'linear-gradient(135deg, #ff9f43, #ee5253)', category: 'utility' }
 ];
 
-// App State
-let currentTool = null;
-let currentFiles = [];
-let activeToolModule = null;
-
 // DOM Elements
 const sidebar = document.getElementById('sidebar');
 const mobileToggle = document.getElementById('mobile-toggle');
 const mobileClose = document.getElementById('mobile-close');
 const themeToggle = document.getElementById('theme-toggle');
 const toolSearch = document.getElementById('tool-search');
-const contentBody = document.getElementById('content-body');
-const viewDashboard = document.getElementById('view-dashboard');
-const viewToolWorkspace = document.getElementById('view-tool-workspace');
-const btnBackToDashboard = document.getElementById('btn-back-to-dashboard');
-const workspaceTitle = document.getElementById('workspace-title');
-const workspaceDescription = document.getElementById('workspace-description');
-const toolDropzone = document.getElementById('tool-dropzone');
-const fileInput = document.getElementById('file-input');
-const editorWorkspace = document.getElementById('editor-workspace');
-const editorMainArea = document.getElementById('editor-main-area');
-const dynamicOptionsPanel = document.getElementById('dynamic-options-panel');
-const btnProcessFiles = document.getElementById('btn-process-files');
-const processingState = document.getElementById('processing-state');
-const processingText = document.getElementById('processing-text');
-const processingProgress = document.getElementById('processing-progress');
-const successState = document.getElementById('success-state');
-const successMessage = document.getElementById('success-message');
-const btnDownloadResult = document.getElementById('btn-download-result');
-const btnResetTool = document.getElementById('btn-reset-tool');
-const toastContainer = document.getElementById('toast-container');
-
-// Result storage
-let processedResultBlob = null;
-let processedResultFilename = '';
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
     initThemes();
     renderDashboard();
     initNavigation();
-    initUploadEvents();
-    initProcessEvents();
     
-    // Initial Routing
-    handleRoute();
-    window.addEventListener('hashchange', handleRoute);
+    // Check if page loaded with a category filter in the hash
+    handleCategoryHash();
+    window.addEventListener('hashchange', handleCategoryHash);
     
     // Refresh icons
     lucide.createIcons();
@@ -135,7 +102,7 @@ function renderDashboard() {
         `;
         
         card.addEventListener('click', () => {
-            window.location.hash = `#${tool.id === 'rotate' ? 'rotate-tool' : tool.id}`;
+            window.location.href = `${tool.id}.html`;
         });
 
         grid.appendChild(card);
@@ -143,50 +110,52 @@ function renderDashboard() {
     
     // Search filter
     toolSearch.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
+        const query = e.target.value.toLowerCase().trim();
         const cards = document.querySelectorAll('.tool-card');
+        const sectionGroups = document.querySelectorAll('.tool-section-group');
         
+        if (query === '') {
+            // Show all cards & groups
+            cards.forEach(card => card.style.display = 'flex');
+            sectionGroups.forEach(group => group.style.display = 'block');
+            return;
+        }
+        
+        // Filter cards
         cards.forEach(card => {
-            const title = card.querySelector('h3').textContent.toLowerCase();
-            const desc = card.querySelector('p').textContent.toLowerCase();
-            if (title.includes(query) || desc.includes(query)) {
+            const id = card.getAttribute('data-id');
+            const tool = TOOLS.find(t => t.id === id);
+            const name = tool.name.toLowerCase();
+            const desc = tool.description.toLowerCase();
+            
+            if (name.includes(query) || desc.includes(query)) {
                 card.style.display = 'flex';
             } else {
                 card.style.display = 'none';
             }
         });
-
-        // Hide headers if empty grid
-        Object.keys(categories).forEach(cat => {
-            const grid = categories[cat];
-            const visibleCards = Array.from(grid.children).filter(c => c.style.display !== 'none');
-            const groupHeader = grid.closest('.tool-section-group');
-            if (visibleCards.length === 0) {
-                groupHeader.style.display = 'none';
-            } else {
-                groupHeader.style.display = 'block';
-            }
+        
+        // Hide groups with no visible cards
+        sectionGroups.forEach(group => {
+            const visibleCards = group.querySelectorAll('.tool-card[style="display: flex;"]');
+            const allCardsInGroup = group.querySelectorAll('.tool-card');
+            
+            // If all cards inside group have display: none, hide group
+            let hasVisible = false;
+            allCardsInGroup.forEach(c => {
+                if (c.style.display !== 'none') hasVisible = true;
+            });
+            
+            group.style.display = hasVisible ? 'block' : 'none';
         });
     });
 }
 
 // Router & Nav Layout
 function initNavigation() {
-    // Back button
-    btnBackToDashboard.addEventListener('click', () => {
-        window.location.hash = '#dashboard';
-    });
-
     // Mobile Navigation triggers
     mobileToggle.addEventListener('click', () => sidebar.classList.add('open'));
     mobileClose.addEventListener('click', () => sidebar.classList.remove('open'));
-
-    // Highlight sidebar links based on hash
-    document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
-        link.addEventListener('click', (e) => {
-            sidebar.classList.remove('open');
-        });
-    });
 
     // Header Category Dropdown Toggle
     const dropdownTrigger = document.getElementById('dropdown-trigger');
@@ -206,12 +175,8 @@ function initNavigation() {
     // Category Dropdown clicks (Filter dashboard)
     dropdownMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
             const category = link.getAttribute('data-cat');
             dropdownMenu.classList.remove('show');
-            
-            // Go to dashboard
-            window.location.hash = '#dashboard';
             
             // Filter categories on home
             filterCategoryOnDashboard(category);
@@ -233,6 +198,16 @@ function initNavigation() {
     aboutModal.addEventListener('click', (e) => {
         if (e.target === aboutModal) closeModal();
     });
+}
+
+function handleCategoryHash() {
+    const hash = window.location.hash;
+    if (hash.startsWith('#cat-')) {
+        const cat = hash.replace('#cat-', '');
+        filterCategoryOnDashboard(cat);
+    } else if (hash === '' || hash === '#dashboard') {
+        resetCategoryFilters();
+    }
 }
 
 // Filter categories helper
@@ -267,6 +242,7 @@ function filterCategoryOnDashboard(category) {
         lucide.createIcons();
 
         resetFilterBtn.querySelector('button').addEventListener('click', () => {
+            window.location.hash = '';
             resetCategoryFilters();
         });
     }
@@ -279,310 +255,4 @@ function resetCategoryFilters() {
     });
     const banner = document.getElementById('reset-filter-banner');
     if (banner) banner.remove();
-}
-
-// Route handler
-async function handleRoute() {
-    let hash = window.location.hash.substring(1) || 'dashboard';
-    
-    // Normalize rotate hash to match tool ID
-    if (hash === 'rotate-tool') hash = 'rotate';
-    
-    // Update active nav link
-    document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
-        const target = item.getAttribute('data-target');
-        if (target === hash || (hash === 'dashboard' && target === 'dashboard')) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
-        }
-    });
-
-    if (hash === 'dashboard') {
-        showDashboard();
-    } else {
-        const tool = TOOLS.find(t => t.id === hash);
-        if (tool) {
-            await loadToolWorkspace(tool);
-        } else {
-            window.location.hash = '#dashboard';
-        }
-    }
-}
-
-function showDashboard() {
-    resetCategoryFilters();
-    viewToolWorkspace.classList.add('hidden');
-    viewDashboard.classList.remove('active', 'hidden');
-    viewDashboard.classList.add('active');
-    currentTool = null;
-    currentFiles = [];
-}
-
-async function loadToolWorkspace(tool) {
-    currentTool = tool;
-    currentFiles = [];
-    activeToolModule = null;
-
-    // Reset workspace UI
-    viewDashboard.classList.add('hidden');
-    viewDashboard.classList.remove('active');
-    viewToolWorkspace.classList.remove('hidden');
-    
-    workspaceTitle.textContent = tool.name;
-    workspaceDescription.textContent = tool.description;
-    
-    // Reset view states
-    toolDropzone.classList.remove('hidden');
-    editorWorkspace.classList.add('hidden');
-    processingState.classList.add('hidden');
-    successState.classList.add('hidden');
-    
-    // Reset file input
-    fileInput.value = '';
-    
-    // Configure dropzone accept attribute based on tool
-    if (tool.id === 'img2pdf') {
-        fileInput.accept = 'image/png, image/jpeg, image/webp, image/heic';
-        toolDropzone.querySelector('.dropzone-hint').textContent = 'Supports PNG, JPG, WEBP, HEIC';
-    } else if (tool.id === 'text2pdf') {
-        fileInput.accept = '.txt, .md';
-        toolDropzone.querySelector('.dropzone-hint').textContent = 'Supports TXT, MD text files';
-    } else {
-        fileInput.accept = '.pdf';
-        toolDropzone.querySelector('.dropzone-hint').textContent = 'Supports PDF files';
-    }
-
-    // Dynamic import of tool logic
-    try {
-        const modulePath = `./tools/${tool.id}.js`;
-        activeToolModule = await import(modulePath);
-        
-        // Render specific options inside options sidebar
-        dynamicOptionsPanel.innerHTML = '';
-        if (activeToolModule.renderOptions) {
-            activeToolModule.renderOptions(dynamicOptionsPanel);
-        }
-        
-        // Check if this tool bypasses file uploads
-        const noFileTools = ['calculator', 'qrcode'];
-        if (noFileTools.includes(tool.id)) {
-            toolDropzone.classList.add('hidden');
-            editorWorkspace.classList.remove('hidden');
-            const processBtn = document.getElementById('btn-process-files');
-            if (processBtn) processBtn.classList.add('hidden');
-            
-            if (activeToolModule.renderWorkspace) {
-                editorMainArea.innerHTML = '';
-                await activeToolModule.renderWorkspace(editorMainArea, [], { formatBytes });
-            }
-        } else {
-            const processBtn = document.getElementById('btn-process-files');
-            if (processBtn) processBtn.classList.remove('hidden');
-        }
-
-        // Enable Lucide icons inside options panel
-        lucide.createIcons();
-    } catch (err) {
-        console.error(`Failed to load module for tool: ${tool.id}`, err);
-        showToast(`Failed to load tool options. Please try refreshing.`, 'error');
-    }
-}
-
-// Drag & Drop Handling
-function initUploadEvents() {
-    toolDropzone.addEventListener('click', () => fileInput.click());
-    
-    toolDropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        toolDropzone.classList.add('dragover');
-    });
-
-    toolDropzone.addEventListener('dragleave', () => {
-        toolDropzone.classList.remove('dragover');
-    });
-
-    toolDropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        toolDropzone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-            handleUploadedFiles(e.dataTransfer.files);
-        }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleUploadedFiles(e.target.files);
-        }
-    });
-}
-
-// Process Uploaded Files
-async function handleUploadedFiles(fileList) {
-    if (!currentTool) return;
-    
-    const filesArray = Array.from(fileList);
-    const validFiles = [];
-
-    // Filter files based on tool constraints
-    for (const file of filesArray) {
-        const extension = file.name.split('.').pop().toLowerCase();
-        
-        if (currentTool.id === 'img2pdf') {
-            if (['jpg', 'jpeg', 'png', 'webp', 'heic'].includes(extension)) {
-                validFiles.push(file);
-            }
-        } else if (currentTool.id === 'text2pdf') {
-            if (['txt', 'md'].includes(extension)) {
-                validFiles.push(file);
-            }
-        } else {
-            if (extension === 'pdf') {
-                validFiles.push(file);
-            }
-        }
-    }
-
-    if (validFiles.length === 0) {
-        showToast('Invalid file format. Please upload accepted files.', 'error');
-        return;
-    }
-
-    // PDF length constraint (mostly split, rotate require single files, others support multiple)
-    const singleFileTools = ['split', 'organize', 'rotate', 'pdf2img', 'compress', 'protect', 'unlock', 'watermark', 'pagenumber', 'sign'];
-    if (singleFileTools.includes(currentTool.id) && validFiles.length > 1) {
-        showToast(`This tool only supports single PDF processing. Loaded ${validFiles[0].name} only.`, 'warning');
-        currentFiles = [validFiles[0]];
-    } else {
-        currentFiles = validFiles;
-    }
-
-    showToast(`Loaded ${currentFiles.length} file(s)`, 'success');
-    
-    // Hide dropzone and show loader state or visual editor
-    toolDropzone.classList.add('hidden');
-    editorWorkspace.classList.remove('hidden');
-    
-    // Trigger tool-specific workspace visualizer
-    if (activeToolModule && activeToolModule.renderWorkspace) {
-        editorMainArea.innerHTML = '<div class="text-center py-8"><div class="spinner m-auto"></div><p class="mt-4">Loading document previews...</p></div>';
-        try {
-            await activeToolModule.renderWorkspace(editorMainArea, currentFiles, { formatBytes });
-        } catch (err) {
-            console.error('Error rendering workspace:', err);
-            showToast('Error loading previews. Operation still available.', 'warning');
-            editorMainArea.innerHTML = `<div class="text-center py-8"><i data-lucide="file" style="width:48px;height:48px;"></i><p class="mt-4">${currentFiles.map(f => f.name).join(', ')} loaded.</p></div>`;
-            lucide.createIcons();
-        }
-    } else {
-        editorMainArea.innerHTML = `<div class="text-center py-8"><p>${currentFiles.map(f => f.name).join(', ')} loaded.</p></div>`;
-    }
-}
-
-// Process Event Handling
-function initProcessEvents() {
-    btnProcessFiles.addEventListener('click', async () => {
-        if (currentFiles.length === 0 || !activeToolModule) return;
-        
-        // Show Processing Screen
-        editorWorkspace.classList.add('hidden');
-        processingState.classList.remove('hidden');
-        processingProgress.style.width = '0%';
-        processingText.textContent = 'Processing files...';
-
-        // Retrieve option forms data
-        const options = {};
-        if (dynamicOptionsPanel) {
-            const inputs = dynamicOptionsPanel.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                if (input.type === 'checkbox') {
-                    options[input.id] = input.checked;
-                } else {
-                    options[input.id] = input.value;
-                }
-            });
-        }
-
-        try {
-            // Execute the PDF engine operation
-            const result = await activeToolModule.process(currentFiles, options, (percentage, text) => {
-                processingProgress.style.width = `${percentage}%`;
-                if (text) processingText.textContent = text;
-            });
-
-            if (result && (result.blob || result.zipBlob)) {
-                processedResultBlob = result.blob || result.zipBlob;
-                processedResultFilename = result.filename;
-
-                // Show Success Screen
-                processingState.classList.add('hidden');
-                successState.classList.remove('hidden');
-                successMessage.textContent = `"${processedResultFilename}" is ready for download.`;
-                
-                // Track success status
-                showToast('Files processed successfully!', 'success');
-            } else {
-                throw new Error('Operation returned empty result.');
-            }
-        } catch (err) {
-            console.error('Error during execution:', err);
-            showToast(err.message || 'An error occurred during file processing.', 'error');
-            
-            // Revert back to Editor on failure
-            processingState.classList.add('hidden');
-            editorWorkspace.classList.remove('hidden');
-        }
-    });
-
-    // Download click
-    btnDownloadResult.addEventListener('click', () => {
-        if (!processedResultBlob) return;
-        
-        const url = URL.createObjectURL(processedResultBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = processedResultFilename;
-        document.body.appendChild(a);
-        a.click();
-        
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showToast('Download started', 'success');
-    });
-
-    // Reset Click
-    btnResetTool.addEventListener('click', () => {
-        processedResultBlob = null;
-        processedResultFilename = '';
-        loadToolWorkspace(currentTool);
-    });
-}
-
-// Toast alerts helper
-export function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    
-    let icon = 'info';
-    if (type === 'success') icon = 'check-circle';
-    if (type === 'error') icon = 'alert-triangle';
-    if (type === 'warning') icon = 'alert-circle';
-    
-    toast.innerHTML = `
-        <i data-lucide="${icon}"></i>
-        <div class="toast-content">${message}</div>
-    `;
-    
-    toastContainer.appendChild(toast);
-    lucide.createIcons();
-    
-    // Auto remove
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            toastContainer.removeChild(toast);
-        }, 300);
-    }, 4000);
 }

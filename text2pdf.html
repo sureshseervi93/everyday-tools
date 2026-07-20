@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everyday Tools | Free & Secure Client-Side PDF Tools</title>
+    <title>Text to PDF - Everyday Tools</title>
     <meta name="description" content="A premium, 100% client-side PDF utility suite. Merge, split, compress, protect, rotate, sign, and convert PDF files directly in your browser. Complete privacy, files never leave your device.">
     
     <!-- Google Fonts -->
@@ -25,7 +25,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
+<body data-tool-id="text2pdf">
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
@@ -38,7 +38,7 @@
             </div>
             
             <nav class="sidebar-nav">
-                <a href="index.html" class="nav-item active" data-target="dashboard">
+                <a href="index.html" class="nav-item" data-target="dashboard">
                     <i data-lucide="layout-grid"></i>
                     <span>All Tools</span>
                 </a>
@@ -177,64 +177,16 @@
             <!-- Active View Container -->
             <div class="content-body" id="content-body">
                 
-                <!-- DASHBOARD VIEW -->
-                <section id="view-dashboard" class="view-panel active">
-                    <div class="dashboard-hero">
-                        <h1>Sleek & Secure <span class="gradient-text">PDF Tools</span></h1>
-                        <p>No subscriptions. No file uploads. Process everything client-side in seconds with complete privacy.</p>
-                    </div>
-                    
-                    <div class="tool-section-group">
-                        <h2 class="section-title"><i data-lucide="folder-git-2"></i> Organize PDF Files</h2>
-                        <div class="tools-grid" id="grid-organize">
-                            <!-- Injected by app.js or written directly -->
-                        </div>
-                    </div>
-                    
-                    <div class="tool-section-group">
-                        <h2 class="section-title"><i data-lucide="arrow-left-right"></i> Convert To/From PDF</h2>
-                        <div class="tools-grid" id="grid-convert">
-                            <!-- Injected by app.js -->
-                        </div>
-                    </div>
-                    
-                    <div class="tool-section-group">
-                        <h2 class="section-title"><i data-lucide="shield-alert"></i> Optimize & Security</h2>
-                        <div class="tools-grid" id="grid-security">
-                            <!-- Injected by app.js -->
-                        </div>
-                    </div>
-                    
-                    <div class="tool-section-group">
-                        <h2 class="section-title"><i data-lucide="pen-tool"></i> Customization & E-Sign</h2>
-                        <div class="tools-grid" id="grid-sign">
-                            <!-- Injected by app.js -->
-                        </div>
-                    </div>
-
-                    <div class="tool-section-group">
-                        <h2 class="section-title"><i data-lucide="music"></i> Audio & Video Tools</h2>
-                        <div class="tools-grid" id="grid-audio-video">
-                            <!-- Injected by app.js -->
-                        </div>
-                    </div>
-
-                    <div class="tool-section-group">
-                        <h2 class="section-title"><i data-lucide="calculator"></i> General Utilities</h2>
-                        <div class="tools-grid" id="grid-utility">
-                            <!-- Injected by app.js -->
-                        </div>
-                    </div>
-                </section>
+                
 
                 <!-- Dynamic Workspace for Tools -->
-                <section id="view-tool-workspace" class="view-panel hidden">
+                <section id="view-tool-workspace" class="view-panel active">
                     <div class="workspace-header">
                         <button class="btn-back" id="btn-back-to-dashboard">
                             <i data-lucide="arrow-left"></i> Back to Dashboard
                         </button>
-                        <h2 id="workspace-title">Tool Name</h2>
-                        <p id="workspace-description">Tool Description</p>
+                        <h2 id="workspace-title">Text to PDF</h2>
+                        <p id="workspace-description">Convert markdown or formatted text documents into a clean PDF.</p>
                     </div>
                     
                     <div class="workspace-container">
@@ -352,6 +304,6 @@
 
     <!-- JS Scripts -->
     <script type="module" src="js/utils.js"></script>
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/tool_page.js"></script>
 </body>
 </html>
